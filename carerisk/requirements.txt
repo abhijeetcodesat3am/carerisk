@@ -1,0 +1,13 @@
+# Local development (Databricks ML Runtime 15.4 LTS already ships equivalents)
+pyspark==4.0.1
+mlflow==2.22.0
+xgboost==2.1.4
+shap==0.46.0
+scikit-learn==1.5.2
+pandas==2.2.3
+numpy<2.1
+pyarrow==17.0.0
+matplotlib==3.9.2
+pyyaml
+pytest
+sqlalchemy<2.1

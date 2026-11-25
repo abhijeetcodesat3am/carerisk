@@ -1,0 +1,19 @@
+# Databricks Asset Bundle:  databricks bundle deploy -t dev  &&  databricks bundle run carerisk_training
+bundle:
+  name: carerisk
+
+include:
+  - resources/*.yml
+
+variables:
+  node_type:
+    default: i3.xlarge            # Azure: Standard_DS3_v2 · GCP: n2-standard-4
+  spark_version:
+    default: 15.4.x-cpu-ml-scala2.12
+
+targets:
+  dev:
+    mode: development
+    default: true
+    # workspace:
+    #   host: https://<your-workspace>.cloud.databricks.com

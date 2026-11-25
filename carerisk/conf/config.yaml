@@ -1,0 +1,45 @@
+project: carerisk
+
+paths:                       # local mode (relative to repo root)
+  raw_dir: data/raw
+  tables_dir: data/tables
+  reports_dir: reports
+
+databricks:                  # used automatically when running on Databricks
+  catalog: main
+  schema: carerisk
+  raw_dir: /Volumes/main/carerisk/raw     # upload the unzipped SynPUF CSVs here
+
+mlflow:
+  local_tracking_uri: sqlite:///mlruns.db
+  local_experiment: carerisk
+  databricks_experiment: /Shared/carerisk
+  model_name: carerisk_readmission
+  champion_alias: champion
+
+cohort:
+  lookback_days: 365         # history window for prior-utilisation & comorbidity features
+  label_window_days: 30
+  index_start: "2009-01-01"  # 2008 is used only as look-back so every index stay has a full year of history
+  test_start: "2010-01-01"   # index stays on/after this date are the (future) test period
+  data_end: "2010-12-31"     # last date of claims coverage (for right-censoring)
+
+split:                       # patient-grouped: each beneficiary lands in exactly one split
+  seed: 42
+  train_pct: 70
+  val_pct: 15                # remaining 15% -> test patients
+
+risk_tiers:                  # capacity-based thresholds, fixed on the validation set
+  high_top_frac: 0.10
+  medium_top_frac: 0.30
+
+scoring:
+  batch_start: "2010-07-01"  # discharges scored by the batch job (demo: H2-2010)
+  batch_end: "2010-12-31"
+  n_reasons: 3
+
+drift:
+  bins: 10
+  warn: 0.10
+  alert: 0.25
+  fail_on_alert: false

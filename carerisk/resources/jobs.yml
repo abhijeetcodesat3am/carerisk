@@ -1,0 +1,45 @@
+resources:
+  jobs:
+    carerisk_training:
+      name: carerisk-training
+      job_clusters:
+        - job_cluster_key: ml
+          new_cluster:
+            spark_version: ${var.spark_version}
+            node_type_id: ${var.node_type}
+            num_workers: 1
+      tasks:
+        - task_key: ingest
+          job_cluster_key: ml
+          notebook_task: {notebook_path: ../notebooks/01_ingest.py}
+        - task_key: features
+          depends_on: [{task_key: ingest}]
+          job_cluster_key: ml
+          notebook_task: {notebook_path: ../notebooks/02_features.py}
+        - task_key: train
+          depends_on: [{task_key: features}]
+          job_cluster_key: ml
+          notebook_task: {notebook_path: ../notebooks/03_train.py}
+
+    carerisk_batch_scoring:
+      name: carerisk-batch-scoring
+      schedule:                         # every Monday 06:00 UTC
+        quartz_cron_expression: "0 0 6 ? * MON"
+        timezone_id: UTC
+        pause_status: UNPAUSED
+      email_notifications:
+        on_failure: []                  # add your address to be alerted on failure / drift alert
+      job_clusters:
+        - job_cluster_key: ml
+          new_cluster:
+            spark_version: ${var.spark_version}
+            node_type_id: ${var.node_type}
+            num_workers: 1
+      tasks:
+        - task_key: refresh_features
+          job_cluster_key: ml
+          notebook_task: {notebook_path: ../notebooks/02_features.py}
+        - task_key: score_and_drift
+          depends_on: [{task_key: refresh_features}]
+          job_cluster_key: ml
+          notebook_task: {notebook_path: ../notebooks/04_batch_score.py}
